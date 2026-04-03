@@ -1,0 +1,15 @@
+services:
+  app:
+    image: pudding/docker-Scrape-Web-Page-To-Markdown:20260403.181452
+    tty: true
+    user: "${UID}:${GID}"
+    command: node /app/index.js "/input/__INPUT__"
+    environment:
+      - CONTAINER_NAME=docker-scrape-web-page-to-markdown-app
+      - LOCAL_VOLUMN_PATH=/input/
+      - RUN_COMMAND=node /app/index.js
+    volumes: 
+      - ./app:/app/
+      - ./cache:/cache/
+      - __SOURCE__:/input/
+      - __SOURCE__:/output/
