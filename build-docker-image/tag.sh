@@ -1,6 +1,9 @@
 #!/bin/bash
 
-node build/update-citation.js
+cd $(dirname $0)
+cd ..
+
+node ./build-docker-image/update-citation.js
 
 # =================================================================
 

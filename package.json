@@ -6,7 +6,7 @@
   "scripts": {
     "start": "./startup.sh",
     "test:curl": "bash test/self-test.sh",
-    "build:tag": "node build-docker-image/tag.sh"
+    "build:tag": "bash build-docker-image/tag.sh"
   },
   "repository": {
     "type": "git",
