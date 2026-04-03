@@ -1,0 +1,41 @@
+{
+  "name": "docker-Puppeteer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "docker-compose down; docker-compose up --build",
+    "d0.build": "docker-compose build",
+    "d1.crawl.bash": "docker-compose run app bash",
+    "d2.crawl.up": "docker-compose run app node /app/index.js",
+    "d3.crop.bash": "docker-compose run crop bash",
+    "d3.crop.up": "docker-compose run crop python /app/main.py",
+    "update": "node update.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://pulipuli.chen@gmail.com@github.com/pulipulichen/jieba-js.git"
+  },
+  "keywords": [
+    "PWA"
+  ],
+  "author": "Pulipuli Chen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pulipulichen/jieba-js/issues"
+  },
+  "homepage": "https://github.com/pulipulichen/jieba-js#readme",
+  "devDependencies": {
+    "papaparse": "5.3.2",
+    "text-from-image": "1.1.1",
+    "puppeteer": "19.3.0",
+    "node-tesseract-ocr": "2.2.1",
+    "request": "2.88.2",
+    "json5": "2.2.1",
+    "sequelize": "6.7.0",
+    "sqlite3": "5.0.2",
+    "@pulipuli.chen/fast-glob": "3.2.14",
+    "tree-kill": "1.2.2",
+    "node-tesseract": "0.2.7"
+  }
+}
