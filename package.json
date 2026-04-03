@@ -5,7 +5,8 @@
   "main": "app/index.js",
   "scripts": {
     "start": "./startup.sh",
-    "test:curl": "bash test/self-test.sh"
+    "test:curl": "bash test/self-test.sh",
+    "build:tag": "node build-docker-image/tag.sh"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,4 @@
 {
   "contentSelectors": ["article", ".post-body", "#main", "#test"],
-  "removeSelectors": [".sidebar", ".comments"],
-  "plugins": ["lazy-src-img"]
+  "removeSelectors": [".sidebar", ".comments"]
 }

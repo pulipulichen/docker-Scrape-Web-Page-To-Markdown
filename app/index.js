@@ -6,6 +6,7 @@ const { fetchRenderedHtml } = require('./scrape');
 
 const PORT = Number(process.env.PORT || 3000);
 const enqueue = createSerialQueue(1000);
+const MIN_MARKDOWN_CHARS = 10;
 
 const app = express();
 app.use(express.json({ limit: '32kb' }));
@@ -24,6 +25,67 @@ function parseUrlParam(raw) {
   return { url: u };
 }
 
+/** Collect excludePlugins from query (comma-separated and/or repeated key). */
+function excludePluginsFromQuery(query) {
+  const raw = query && query.excludePlugins;
+  if (raw == null) return [];
+  const parts = Array.isArray(raw) ? raw : [raw];
+  const out = [];
+  for (const p of parts) {
+    for (const s of String(p).split(',')) {
+      const t = s.trim();
+      if (t) out.push(t);
+    }
+  }
+  return out;
+}
+
+/** Collect excludePlugins from JSON body (array or comma-separated string). */
+function excludePluginsFromBody(body) {
+  const raw = body && body.excludePlugins;
+  if (raw == null) return [];
+  if (Array.isArray(raw)) {
+    return raw.map((x) => String(x).trim()).filter(Boolean);
+  }
+  if (typeof raw === 'string') {
+    return raw.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+async function parsePage(url, excludePlugins) {
+  let rule;
+  try {
+    rule = resolveRule(url, rulesConfig, { excludePlugins });
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    return {
+      ok: false,
+      status: 400,
+      body: { error: 'invalid request', detail: msg },
+    };
+  }
+  const html = await fetchRenderedHtml(url.href, rule);
+  const { htmlFragment } = extractMainHtml(html, rule);
+  const markdown = htmlToMarkdown(htmlFragment).trim();
+  if (markdown.length < MIN_MARKDOWN_CHARS) {
+    return {
+      ok: false,
+      status: 422,
+      body: {
+        error: 'extracted content too short',
+        detail: `Markdown length is ${markdown.length}; minimum is ${MIN_MARKDOWN_CHARS}.`,
+      },
+    };
+  }
+  return {
+    ok: true,
+    body: {
+      content: markdown,
+    },
+  };
+}
+
 app.get('/health', (_req, res) => {
   res.type('json').send({ ok: true });
 });
@@ -35,15 +97,14 @@ app.get('/api/parse', async (req, res) => {
     return;
   }
   const { url } = parsed;
+  const excludePlugins = excludePluginsFromQuery(req.query);
   try {
-    const payload = await enqueue(async () => {
-      const rule = resolveRule(url, rulesConfig);
-      const html = await fetchRenderedHtml(url.href, rule);
-      const { htmlFragment } = extractMainHtml(html, rule);
-      const markdown = htmlToMarkdown(htmlFragment);
-      return { content: markdown };
-    });
-    res.json(payload);
+    const result = await enqueue(() => parsePage(url, excludePlugins));
+    if (!result.ok) {
+      res.status(result.status).json(result.body);
+      return;
+    }
+    res.json(result.body);
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
     res.status(502).json({ error: 'fetch failed', detail: msg });
@@ -58,15 +119,17 @@ app.post('/api/parse', async (req, res) => {
     return;
   }
   const { url } = parsed;
+  const excludePlugins = [
+    ...excludePluginsFromBody(req.body),
+    ...excludePluginsFromQuery(req.query),
+  ];
   try {
-    const payload = await enqueue(async () => {
-      const rule = resolveRule(url, rulesConfig);
-      const html = await fetchRenderedHtml(url.href, rule);
-      const { htmlFragment } = extractMainHtml(html, rule);
-      const markdown = htmlToMarkdown(htmlFragment);
-      return { content: markdown };
-    });
-    res.json(payload);
+    const result = await enqueue(() => parsePage(url, excludePlugins));
+    if (!result.ok) {
+      res.status(result.status).json(result.body);
+      return;
+    }
+    res.json(result.body);
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
     console.error(msg);

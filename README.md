@@ -140,9 +140,6 @@ The app entrypoint is **`node /app/index.js`** (source is bind-mounted from `./a
 | Script | Purpose |
 |--------|---------|
 | `npm start` | Same as `docker compose up --build` (foreground). Add `sudo` manually if needed. |
-| `npm run d0.build` | `docker compose build` |
-| `npm run d1.crawl.bash` | Interactive shell in the `app` service |
-| `npm run d2.crawl.up` | One-off `node /app/index.js` in the container |
 
 ## License
 

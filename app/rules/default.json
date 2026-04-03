@@ -25,5 +25,6 @@
     "[role=\"navigation\"]",
     ".advertisement",
     ".ad"
-  ]
+  ],
+  "plugins": ["lazy-src-img", "strip-img-and-links"]
 }

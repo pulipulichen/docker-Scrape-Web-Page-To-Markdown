@@ -8,7 +8,41 @@ function normalizeHost(hostname) {
     .toLowerCase();
 }
 
-function resolveRule(parsedUrl, rulesConfig) {
+const PLUGIN_NAME_RE = /^[a-zA-Z0-9_-]+$/;
+
+function normalizeExcludePlugins(list) {
+  const exclude = new Set();
+  for (const item of list || []) {
+    if (item == null || item === '') continue;
+    const s = String(item).trim();
+    if (!s) continue;
+    if (!PLUGIN_NAME_RE.test(s)) {
+      throw new Error(`Invalid plugin name in excludePlugins: "${s}"`);
+    }
+    exclude.add(s);
+  }
+  return exclude;
+}
+
+function mergeResolvedPlugins(d, extra, apiExclude) {
+  const merged = [...(d.plugins || []), ...((extra && extra.plugins) || [])];
+  const exclude = normalizeExcludePlugins([
+    ...(d.excludePlugins || []),
+    ...((extra && extra.excludePlugins) || []),
+    ...(apiExclude || []),
+  ]);
+  const seen = new Set();
+  const out = [];
+  for (const name of merged) {
+    if (exclude.has(name)) continue;
+    if (seen.has(name)) continue;
+    seen.add(name);
+    out.push(name);
+  }
+  return out;
+}
+
+function resolveRule(parsedUrl, rulesConfig, options = {}) {
   const host = normalizeHost(parsedUrl.hostname);
   const domains = rulesConfig.domains || {};
   let extra = null;
@@ -20,15 +54,22 @@ function resolveRule(parsedUrl, rulesConfig) {
     }
   }
   const d = { ...rulesConfig.default };
-  if (!extra) return d;
+  const apiExclude = options.excludePlugins;
+  if (!extra) {
+    return {
+      ...d,
+      plugins: mergeResolvedPlugins(d, null, apiExclude),
+    };
+  }
+  const { plugins: _p, excludePlugins: _e, ...extraRest } = extra;
   return {
     ...d,
-    ...extra,
+    ...extraRest,
     removeSelectors: [
       ...(d.removeSelectors || []),
       ...(extra.removeSelectors || []),
     ],
-    plugins: [...(d.plugins || []), ...(extra.plugins || [])],
+    plugins: mergeResolvedPlugins(d, extra, apiExclude),
     contentSelectors: extra.contentSelectors ?? d.contentSelectors,
   };
 }
@@ -65,24 +106,40 @@ function extractMainHtml(html, rule) {
   for (const sel of rule.contentSelectors || []) {
     const node = $(sel).first();
     if (node.length && textLen($, node) >= minLen) {
-      return { title: extractTitle($, rule), htmlFragment: $.html(node) };
+      // console.log('matchedSelector', sel);
+      // console.log('htmlFragment', $.html(node));
+      return {
+        title: extractTitle($, rule),
+        htmlFragment: $.html(node),
+        matchedSelector: sel,
+      };
     }
   }
 
   const body = $('body');
   if (body.length) {
-    return { title: extractTitle($, rule), htmlFragment: $.html(body) };
+    return {
+      title: extractTitle($, rule),
+      htmlFragment: $.html(body),
+      matchedSelector: 'body',
+    };
   }
 
-  return { title: extractTitle($, rule), htmlFragment: $.html() };
+  return {
+    title: extractTitle($, rule),
+    htmlFragment: $.html(),
+    matchedSelector: '(document)',
+  };
 }
 
 function htmlToMarkdown(html) {
+  console.log('html', html);
   const td = new TurndownService({
     headingStyle: 'atx',
     codeBlockStyle: 'fenced',
     bulletListMarker: '-',
   });
+  console.log('td.turndown(html)', td.turndown(html || ''));
   return td.turndown(html || '').trim();
 }
 
