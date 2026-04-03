@@ -5,7 +5,7 @@ const { resolveRule, extractMainHtml, htmlToMarkdown } = require('./extract');
 const { fetchRenderedHtml } = require('./scrape');
 
 const PORT = Number(process.env.PORT || 3000);
-const enqueue = createSerialQueue(1000);
+const enqueue = createSerialQueue(0);
 const MIN_MARKDOWN_CHARS = 10;
 
 const app = express();
@@ -100,7 +100,8 @@ app.get('/parser', async (req, res) => {
   const { url } = parsed;
   const excludePlugins = excludePluginsFromQuery(req.query);
   try {
-    const result = await enqueue(() => parsePage(url, excludePlugins));
+    // const result = await enqueue(() => parsePage(url, excludePlugins));
+    const result = await parsePage(url, excludePlugins);
     if (!result.ok) {
       res.status(result.status).json(result.body);
       return;
@@ -125,7 +126,8 @@ app.post('/parser', async (req, res) => {
     ...excludePluginsFromQuery(req.query),
   ];
   try {
-    const result = await enqueue(() => parsePage(url, excludePlugins));
+    // const result = await enqueue(() => parsePage(url, excludePlugins));
+    const result = await parsePage(url, excludePlugins);
     if (!result.ok) {
       res.status(result.status).json(result.body);
       return;
