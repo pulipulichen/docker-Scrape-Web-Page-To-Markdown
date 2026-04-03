@@ -1,11 +1,10 @@
 # Runtime deps are installed at image build time (npm install below); no npm install on the host.
-FROM buildkite/puppeteer
+FROM pudding/docker-image-base:action-RSS-Fulltext-Docker-Image-20251004.130038
 
-RUN rm /etc/apt/sources.list.d/google.list
+RUN rm /etc/apt/sources.list.d/google.list || true
 RUN apt-get update
 
 RUN apt-get install -y \
-    fonts-noto-cjk \
     locales \
     git \
     nano \

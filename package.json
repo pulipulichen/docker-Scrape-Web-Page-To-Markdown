@@ -4,14 +4,8 @@
   "description": "Scrape web pages with Puppeteer, extract main content with Cheerio rules, return Markdown via HTTP API.",
   "main": "app/index.js",
   "scripts": {
-    "start": "docker compose up --build",
-    "start:docker": "docker compose down; docker compose up --build",
-    "d0.build": "docker compose build",
-    "d1.crawl.bash": "docker compose run app bash",
-    "d2.crawl.up": "docker compose run app node /app/index.js",
-    "docker:verify-deps": "docker compose build app && docker compose run --rm app node -e \"require('express');require('cheerio');require('turndown');console.log('deps ok')\"",
-    "test:curl": "bash test/self-test.sh",
-    "update": "node update.js"
+    "start": "./startup.sh",
+    "test:curl": "bash test/self-test.sh"
   },
   "repository": {
     "type": "git",
@@ -25,10 +19,10 @@
   "author": "Pulipuli Chen",
   "license": "MIT",
   "dependencies": {
-    "cheerio": "^1.0.0",
-    "express": "^4.21.2",
-    "puppeteer": "^19.3.0",
-    "turndown": "^7.2.0"
+    "cheerio": "1.0.0",
+    "express": "4.21.2",
+    "puppeteer": "19.3.0",
+    "turndown": "7.2.0"
   },
   "devDependencies": {
     "@pulipuli.chen/fast-glob": "3.2.14",
