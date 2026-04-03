@@ -27,6 +27,8 @@ COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund \
  && npm install nodemon@3.1.9 --no-audit --no-fund
 
+COPY app ./app
+
 # Compose mounts ./app → /app; node_modules stay in the image at / and resolve above /app.
 
 CMD ["node", "/app/index.js"]
