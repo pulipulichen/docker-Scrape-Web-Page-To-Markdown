@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 偵測看看現在這個目錄底下的docker有沒有啟動。沒有的話，啟動它
+# If Docker Compose services in this directory are not up, start them; then follow logs.
 
 if ! sudo docker compose ps | grep -q "Up"; then
   echo "Docker services are not running. Starting them now..."

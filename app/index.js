@@ -11,15 +11,15 @@ const app = express();
 app.use(express.json({ limit: '32kb' }));
 
 function parseUrlParam(raw) {
-  if (raw == null || raw === '') return { error: '缺少 url' };
+  if (raw == null || raw === '') return { error: 'missing url' };
   let u;
   try {
     u = new URL(String(raw).trim());
   } catch {
-    return { error: 'url 格式不正確' };
+    return { error: 'invalid url' };
   }
   if (!/^https?:$/i.test(u.protocol)) {
-    return { error: '僅支援 http 或 https' };
+    return { error: 'only http and https are supported' };
   }
   return { url: u };
 }
@@ -50,7 +50,7 @@ app.get('/api/parse', async (req, res) => {
     res.json(payload);
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
-    res.status(502).json({ error: '擷取失敗', detail: msg });
+    res.status(502).json({ error: 'fetch failed', detail: msg });
   }
 });
 
@@ -77,7 +77,7 @@ app.post('/api/parse', async (req, res) => {
     res.json(payload);
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
-    res.status(502).json({ error: '擷取失敗', detail: msg });
+    res.status(502).json({ error: 'fetch failed', detail: msg });
   }
 });
 

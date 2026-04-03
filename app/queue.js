@@ -3,7 +3,7 @@ function sleep(ms) {
 }
 
 /**
- * 同一時間只執行一個任務；任務結束後固定等待 postDelayMs（預設 1 秒）再跑下一個。
+ * Runs one job at a time; after each job, waits postDelayMs (default 1s) before the next.
  */
 function createSerialQueue(postDelayMs = 1000) {
   let running = false;

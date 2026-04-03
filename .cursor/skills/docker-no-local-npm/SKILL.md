@@ -3,10 +3,12 @@ name: docker-no-local-npm
 description: >-
   For docker-Scrape-Web-Page-To-Markdown, installs Node/npm dependencies only
   inside the Docker image (never npm install on the host); run Docker with sudo;
-  write project documentation (README.md, PROJECT.md, etc.) in English. Use when
-  editing package.json, Dockerfile, docs, running the app, debugging containers,
-  or when the user mentions local node_modules, npm install, Docker, or doc
-  language for this repo.
+  write project documentation (README.md, PROJECT.md, etc.) in English; keep
+  user-facing and in-repo program messages (API errors, script echo output,
+  thrown Error strings, Dockerfile comments) in English. Use when editing
+  package.json, Dockerfile, docs, app code, shell scripts, running the app,
+  debugging containers, or when the user mentions local node_modules, npm install,
+  Docker, or doc/language for this repo.
 ---
 
 # docker-Scrape-Web-Page-To-Markdown
@@ -28,6 +30,17 @@ description: >-
 - When creating or updating those files, use clear, conventional technical English (complete sentences, accurate commands and paths).  
 - Chat replies to the user may follow the user’s language preference; **the repo docs stay English**.
 
+## Program messages (English only)
+
+In this repository, **messages that live in code or scripts** must be **English**, including:
+
+- **HTTP API** JSON `error` / `detail` strings and similar user-visible responses  
+- **`throw new Error(...)`** and other runtime messages intended for operators or API clients  
+- **Shell scripts**: `echo` / `printf` output and comments that explain behavior to maintainers  
+- **`Dockerfile`** comments  
+
+Chat with the user may use another language; **do not** add non-English strings into the codebase for those items unless the user explicitly requests a localized product.
+
 ## Workflow when changing dependencies
 
 1. Edit **`package.json`** `dependencies` as needed.  
@@ -45,4 +58,5 @@ description: >-
 
 - If modules appear “missing” on the host, assume the **image was not rebuilt**—do not suggest host `npm install`.  
 - Example Docker commands in answers or in docs should **include `sudo`** where this project expects it.  
-- Any new or updated **project documentation** in the repo: **English only**, per the section above.
+- Any new or updated **project documentation** in the repo: **English only**, per the section above.  
+- Any new or updated **program messages** (API, scripts, errors, Dockerfile comments): **English only**, per **Program messages** above.

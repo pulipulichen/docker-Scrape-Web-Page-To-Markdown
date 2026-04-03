@@ -4,15 +4,15 @@ const path = require('path');
 const DIR = __dirname;
 
 /**
- * 規則目錄：
- * - default.json：全站預設（必填）
- * - 其餘 *.json：檔名（不含 .json）= hostname，例如 blog.pulipuli.info.json
- *   比對邏輯與先前相同：完全相等或 host 為 *.該網域
+ * Rules directory:
+ * - default.json: global default (required)
+ * - other *.json: basename (without .json) = hostname, e.g. blog.pulipuli.info.json
+ *   Match: exact host equality or host under *.that-domain
  */
 function loadRulesConfig() {
   const defaultPath = path.join(DIR, 'default.json');
   if (!fs.existsSync(defaultPath)) {
-    throw new Error(`rules: 缺少 ${defaultPath}`);
+    throw new Error(`rules: missing required file ${defaultPath}`);
   }
   const defaultRule = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
 
