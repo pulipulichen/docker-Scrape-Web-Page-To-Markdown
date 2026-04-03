@@ -81,6 +81,7 @@ async function parsePage(url, excludePlugins) {
   return {
     ok: true,
     body: {
+      url: url.href,
       content: markdown,
     },
   };
