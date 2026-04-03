@@ -45,3 +45,5 @@ cat /tmp/st_m.json
 echo
 
 echo "OK"
+
+sudo docker compose down

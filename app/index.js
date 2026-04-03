@@ -77,6 +77,7 @@ app.post('/api/parse', async (req, res) => {
     res.json(payload);
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
+    console.error(msg);
     res.status(502).json({ error: 'fetch failed', detail: msg });
   }
 });

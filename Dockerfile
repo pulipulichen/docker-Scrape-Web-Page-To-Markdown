@@ -14,9 +14,9 @@ RUN apt-get install -y \
 RUN locale-gen zh_TW.UTF-8
 ENV LC_ALL=zh_TW.UTF-8
 
-# Image already has google-chrome-stable; skip Puppeteer’s Chromium download and use system Chrome.
+# Base image ships Chromium (not Google Chrome); skip Puppeteer’s bundled Chromium download.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /
 
