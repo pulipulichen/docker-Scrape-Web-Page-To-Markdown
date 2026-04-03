@@ -1,6 +1,6 @@
 services:
   app:
-    image: pudding/docker-Scrape-Web-Page-To-Markdown:20260403.181452
+    image: pudding/docker-Scrape-Web-Page-To-Markdown:20260403.181537
     tty: true
     user: "${UID}:${GID}"
     command: node /app/index.js "/input/__INPUT__"
