@@ -12,6 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/pulipulichen/docker-Scrape-Web-Page-To-Markdown.git"
   },
+  "homepage": "https://github.com/pulipulichen/docker-Scrape-Web-Page-To-Markdown",
   "keywords": [
     "scraper",
     "markdown",
