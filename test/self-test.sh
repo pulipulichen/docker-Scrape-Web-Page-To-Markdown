@@ -5,6 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:3000}"
+PARSER_PATH="${PARSER_PATH:-/parser}"
+PARSER_URL="${BASE_URL}${PARSER_PATH}"
 
 if [ -z "$(sudo docker compose ps app --status running -q 2>/dev/null || true)" ]; then
   echo "Docker Compose is not running; starting…"
@@ -25,21 +27,21 @@ echo "== health =="
 curl -sS -f "${BASE_URL}/health" | head -c 500
 echo
 
-echo "== GET /api/parse (example.com) =="
-curl -sS -f -G "${BASE_URL}/api/parse" \
-  --data-urlencode "url=https://www.cwa.gov.tw/V8/C/W/week.html" \
+echo "== GET ${PARSER_PATH} (example.com) =="
+curl -sS -f -G "${PARSER_URL}" \
+  --data-urlencode "url=https://example.com" \
   | head -c 2000
 echo
 
-echo "== POST /api/parse (example.com) =="
-curl -sS -f -X POST "${BASE_URL}/api/parse" \
+echo "== POST ${PARSER_PATH} (example.com) =="
+curl -sS -f -X POST "${PARSER_URL}" \
   -H 'Content-Type: application/json' \
   -d '{"url":"https://example.com"}' \
   | head -c 2000
 echo
 
-echo "== expected error: missing url =="
-code="$(curl -sS -o /tmp/st_m.json -w '%{http_code}' "${BASE_URL}/api/parse")"
+echo "== expected error: missing url (GET ${PARSER_PATH} with no query) =="
+code="$(curl -sS -o /tmp/st_m.json -w '%{http_code}' "${PARSER_URL}")"
 echo "HTTP ${code}"
 cat /tmp/st_m.json
 echo

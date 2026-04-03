@@ -133,13 +133,13 @@ function extractMainHtml(html, rule) {
 }
 
 function htmlToMarkdown(html) {
-  console.log('html', html);
+  // console.log('html', html);
   const td = new TurndownService({
     headingStyle: 'atx',
     codeBlockStyle: 'fenced',
     bulletListMarker: '-',
   });
-  console.log('td.turndown(html)', td.turndown(html || ''));
+  // console.log('td.turndown(html)', td.turndown(html || ''));
   return td.turndown(html || '').trim();
 }
 

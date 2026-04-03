@@ -90,7 +90,7 @@ app.get('/health', (_req, res) => {
   res.type('json').send({ ok: true });
 });
 
-app.get('/api/parse', async (req, res) => {
+app.get('/parser', async (req, res) => {
   const parsed = parseUrlParam(req.query.url);
   if (parsed.error) {
     res.status(400).json({ error: parsed.error });
@@ -111,7 +111,7 @@ app.get('/api/parse', async (req, res) => {
   }
 });
 
-app.post('/api/parse', async (req, res) => {
+app.post('/parser', async (req, res) => {
   const bodyUrl = req.body && (req.body.url ?? req.body.URL);
   const parsed = parseUrlParam(bodyUrl);
   if (parsed.error) {

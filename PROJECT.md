@@ -39,7 +39,7 @@ repo root/
 
 ```mermaid
 flowchart LR
-  Client[Client] --> API[Express /api/parse]
+  Client[Client] --> API[Express /parser]
   API --> Q[Serial queue]
   Q --> R[resolveRule]
   R --> P[Puppeteer loads URL]

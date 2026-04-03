@@ -1,4 +1,4 @@
-# Build the Docker image, start the stack, and verify /health and /api/parse against example.com.
+# Build the Docker image, start the stack, and verify /health and /parser against example.com.
 name: Scrape API CI
 
 on:

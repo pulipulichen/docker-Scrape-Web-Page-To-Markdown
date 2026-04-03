@@ -59,14 +59,14 @@ Example response: `{"ok":true}`
 **GET** (query parameter `url`):
 
 ```bash
-curl -sS -G 'http://127.0.0.1:3000/api/parse' \
+curl -sS -G 'http://127.0.0.1:3000/parser' \
   --data-urlencode 'url=https://example.com'
 ```
 
 **POST** (JSON body):
 
 ```bash
-curl -sS -X POST 'http://127.0.0.1:3000/api/parse' \
+curl -sS -X POST 'http://127.0.0.1:3000/parser' \
   -H 'Content-Type: application/json' \
   -d '{"url":"https://example.com"}'
 ```
