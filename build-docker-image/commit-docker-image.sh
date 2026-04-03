@@ -17,6 +17,8 @@ fi
 
 # ========
 
+
+
 # Get the line starting with "image:"
 image_line=$(awk '/^ *image:/ {print $0}' "$yaml_file")
 
@@ -132,6 +134,9 @@ CONTAINER_NAME=$(awk -F= '/^ *- CONTAINER_NAME=/ {gsub(/ /,"",$2); print $2}' "$
 
 # 根據是否為 rootless 模式，決定是否使用 sudo
 # Use sudo conditionally based on whether it's rootless mode
+
+${SUDO_CMD} docker compose build
+
 ${SUDO_CMD} docker tag ${CONTAINER_NAME} ${IMAGE_NAME}
 ${SUDO_CMD} docker push "${IMAGE_NAME}"
 
