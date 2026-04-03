@@ -1,0 +1,4 @@
+{
+  "contentSelectors": ["article", ".post-body", "#main"],
+  "removeSelectors": [".sidebar", ".comments"]
+}

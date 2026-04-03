@@ -1,0 +1,29 @@
+{
+  "waitUntil": "networkidle2",
+  "navigationTimeoutMs": 60000,
+  "waitForSelector": null,
+  "waitForSelectorTimeoutMs": 30000,
+  "minTextLength": 120,
+  "titleSelector": "h1",
+  "contentSelectors": [
+    "article",
+    "[role=\"main\"]",
+    "main",
+    ".post-content",
+    ".entry-content",
+    "#content",
+    ".content"
+  ],
+  "removeSelectors": [
+    "script",
+    "style",
+    "noscript",
+    "iframe",
+    "nav",
+    "footer",
+    "header",
+    "[role=\"navigation\"]",
+    ".advertisement",
+    ".ad"
+  ]
+}

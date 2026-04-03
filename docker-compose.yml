@@ -1,27 +1,11 @@
-# docker-Specify the compose version
-version: "3"
-
 services:
   app:
-    #Build a Dockerfile in the same directory
     build: .
-    #Give the container a name(Any)
-    #container_name: 
-    #You can keep the container running.
     tty: true
-    #Mount the files in the directory to the app directory in the container
-    volumes: 
+    volumes:
       - ./app:/app/
     environment:
-      - url=https://blog.pulipuli.info/
-    #Mount port 1000 on the container side to port 8080 on the host side.
-    #ports:
-    #  - "8080:8080"
-    #command: nvidia-smi
-    #deploy:
-    #  resources:
-    #    reservations:
-    #      devices:
-            #- driver: nvidia
-            #  count: 1
-            #  capabilities: [gpu]
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    command: ["node", "/app/index.js"]

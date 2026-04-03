@@ -1,29 +1,91 @@
-const puppeteer = require('puppeteer');
+const express = require('express');
+const rulesConfig = require('./rules');
+const { createSerialQueue } = require('./queue');
+const { resolveRule, extractMainHtml, htmlToMarkdown } = require('./extract');
+const { fetchRenderedHtml } = require('./scrape');
 
-(async () => {
-  const browser = await puppeteer.launch({
-    //headless: false,
-    args: ['--no-sandbox'],
-    ignoreHTTPSErrors: true,
-  });
-  const page = await browser.newPage();
+const PORT = Number(process.env.PORT || 3000);
+const enqueue = createSerialQueue(1000);
 
-  //await page.setUserAgent(
-  //   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'
-  //)
+const app = express();
+app.use(express.json({ limit: '32kb' }));
 
-  console.log('URL', process.env['url'])
-  await page.goto(process.env['url'], {waitUntil: 'networkidle0'})
+function parseUrlParam(raw) {
+  if (raw == null || raw === '') return { error: '缺少 url' };
+  let u;
+  try {
+    u = new URL(String(raw).trim());
+  } catch {
+    return { error: 'url 格式不正確' };
+  }
+  if (!/^https?:$/i.test(u.protocol)) {
+    return { error: '僅支援 http 或 https' };
+  }
+  return { url: u };
+}
 
-  await page.waitForSelector('a[href="/p/cookie-policy.html"]', {visible: true})
+app.get('/health', (_req, res) => {
+  res.type('json').send({ ok: true });
+});
 
-  await page.evaluate((button) => {
-     document.querySelector(button).click();
-   }, 'a[href="/p/cookie-policy.html"]')
+app.get('/api/parse', async (req, res) => {
+  const parsed = parseUrlParam(req.query.url);
+  if (parsed.error) {
+    res.status(400).json({ error: parsed.error });
+    return;
+  }
+  const { url } = parsed;
+  try {
+    const payload = await enqueue(async () => {
+      const rule = resolveRule(url, rulesConfig);
+      const html = await fetchRenderedHtml(url.href, rule);
+      const { title, htmlFragment } = extractMainHtml(html, rule);
+      const markdown = htmlToMarkdown(htmlFragment);
+      return {
+        url: url.href,
+        title,
+        content: markdown,
+      };
+    });
+    res.json(payload);
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    res.status(502).json({ error: '擷取失敗', detail: msg });
+  }
+});
 
-  await page.waitForNavigation({waitUntil: "networkidle0"})
+app.post('/api/parse', async (req, res) => {
+  const bodyUrl = req.body && (req.body.url ?? req.body.URL);
+  const parsed = parseUrlParam(bodyUrl);
+  if (parsed.error) {
+    res.status(400).json({ error: parsed.error });
+    return;
+  }
+  const { url } = parsed;
+  try {
+    const payload = await enqueue(async () => {
+      const rule = resolveRule(url, rulesConfig);
+      const html = await fetchRenderedHtml(url.href, rule);
+      const { title, htmlFragment } = extractMainHtml(html, rule);
+      const markdown = htmlToMarkdown(htmlFragment);
+      return {
+        url: url.href,
+        title,
+        content: markdown,
+      };
+    });
+    res.json(payload);
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    res.status(502).json({ error: '擷取失敗', detail: msg });
+  }
+});
 
-  await page.screenshot({ path: '/app/example.png' })
+app.use((_req, res) => {
+  res.status(404).json({ error: 'not found' });
+});
 
-  await browser.close();
-})();
+app.listen(PORT, '0.0.0.0', () => {
+  // eslint-disable-next-line no-console
+  console.log(`scrape-to-markdown listening on :${PORT}`);
+});
