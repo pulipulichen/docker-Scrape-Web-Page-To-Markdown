@@ -1,8 +1,8 @@
 {
   "waitUntil": "networkidle2",
-  "navigationTimeoutMs": 60000,
+  "navigationTimeoutMs": 10000,
   "waitForSelector": null,
-  "waitForSelectorTimeoutMs": 30000,
+  "waitForSelectorTimeoutMs": 10000,
   "minTextLength": 120,
   "titleSelector": "h1",
   "contentSelectors": [

@@ -16,18 +16,28 @@ async function getBrowser() {
   return browserPromise;
 }
 
-async function fetchRenderedHtml(pageUrl, rule) {
+const DEFAULT_NAVIGATION_TIMEOUT_MS = 10000;
+
+async function fetchRenderedHtml(pageUrl, rule, overrides = {}) {
   const browser = await getBrowser();
   const page = await browser.newPage();
+  const navigationTimeoutMs =
+    overrides.navigationTimeoutMs ??
+    rule.navigationTimeoutMs ??
+    DEFAULT_NAVIGATION_TIMEOUT_MS;
+  const waitForSelectorTimeoutMs =
+    overrides.waitForSelectorTimeoutMs ??
+    rule.waitForSelectorTimeoutMs ??
+    navigationTimeoutMs;
   try {
     await page.setViewport({ width: 1280, height: 800 });
     await page.goto(pageUrl, {
       waitUntil: rule.waitUntil || 'networkidle2',
-      timeout: rule.navigationTimeoutMs || 60000,
+      timeout: navigationTimeoutMs,
     });
     if (rule.waitForSelector) {
       await page.waitForSelector(rule.waitForSelector, {
-        timeout: rule.waitForSelectorTimeoutMs || 30000,
+        timeout: waitForSelectorTimeoutMs,
       });
     }
     return await page.content();

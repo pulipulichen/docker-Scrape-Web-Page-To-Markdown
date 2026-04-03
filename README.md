@@ -79,6 +79,27 @@ Errors may return `400` (e.g. missing or invalid `url`) or `502` (fetch/extract 
 
 Only **`http:`** and **`https:`** URLs are allowed.
 
+### Navigation timeout (`timeoutMs`)
+
+Puppeteer uses a **10 second** default for `page.goto` navigation (and, when `waitForSelector` is set in rules, the same value is used as the default selector wait unless the rule sets `waitForSelectorTimeoutMs`). Per-domain rules may set `navigationTimeoutMs` / `waitForSelectorTimeoutMs` in `app/rules/*.json` when the client omits `timeoutMs`.
+
+When the request includes **`timeoutMs`**, that value is used for navigation (and as the selector wait default for that request) and **overrides** the merged rule timeouts for that call.
+
+To set the navigation budget for a single request, pass **`timeoutMs`** (integer **milliseconds**):
+
+- **GET** — query parameter, e.g. `timeoutMs=30000`
+- **POST** — JSON field `timeoutMs`; if both body and query include it, the **body** value wins
+
+Allowed range: **1000**–**120000** ms. Invalid or out-of-range values return **`400`** with `error` describing the problem.
+
+Example (60s navigation budget):
+
+```bash
+curl -sS -G 'http://127.0.0.1:3000/parser' \
+  --data-urlencode 'url=https://example.com' \
+  --data-urlencode 'timeoutMs=60000'
+```
+
 ## Self-test (curl)
 
 With the service running, from the repository root:

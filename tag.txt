@@ -1,1 +1,1 @@
-pudding/docker-scrape-web-page-to-markdown:20260404.020334
+pudding/docker-scrape-web-page-to-markdown:20260404.040512
