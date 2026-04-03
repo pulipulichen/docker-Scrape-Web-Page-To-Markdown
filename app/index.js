@@ -39,13 +39,9 @@ app.get('/api/parse', async (req, res) => {
     const payload = await enqueue(async () => {
       const rule = resolveRule(url, rulesConfig);
       const html = await fetchRenderedHtml(url.href, rule);
-      const { title, htmlFragment } = extractMainHtml(html, rule);
+      const { htmlFragment } = extractMainHtml(html, rule);
       const markdown = htmlToMarkdown(htmlFragment);
-      return {
-        url: url.href,
-        title,
-        content: markdown,
-      };
+      return { content: markdown };
     });
     res.json(payload);
   } catch (e) {
@@ -66,13 +62,9 @@ app.post('/api/parse', async (req, res) => {
     const payload = await enqueue(async () => {
       const rule = resolveRule(url, rulesConfig);
       const html = await fetchRenderedHtml(url.href, rule);
-      const { title, htmlFragment } = extractMainHtml(html, rule);
+      const { htmlFragment } = extractMainHtml(html, rule);
       const markdown = htmlToMarkdown(htmlFragment);
-      return {
-        url: url.href,
-        title,
-        content: markdown,
-      };
+      return { content: markdown };
     });
     res.json(payload);
   } catch (e) {

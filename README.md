@@ -31,6 +31,10 @@ Stop and remove containers:
 sudo docker compose down
 ```
 
+### Hot reload while editing `app/`
+
+`docker-compose.yml` runs **nodemon** with `working_dir: /app` so changes under `./app` (including `rules/*.json`) restart the server without rebuilding the image. Nodemon is installed in the image next to production deps (see `Dockerfile`). Rebuild after changing `package.json` / `Dockerfile`.
+
 ## Shell scripts in this repo
 
 | File | Purpose |
@@ -69,8 +73,6 @@ curl -sS -X POST 'http://127.0.0.1:3000/api/parse' \
 
 On success, the JSON body includes:
 
-- `url` — requested URL  
-- `title` — page title (from rules and fallbacks)  
 - `content` — main body as a **Markdown string**
 
 Errors may return `400` (e.g. missing or invalid `url`) or `502` (fetch/extract failed; body includes `error` and `detail`).

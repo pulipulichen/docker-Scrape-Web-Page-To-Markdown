@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
 const TurndownService = require('turndown');
+const { applyCheerioPlugins } = require('./rules/plugin-runner');
 
 function normalizeHost(hostname) {
   return String(hostname || '')
@@ -27,6 +28,7 @@ function resolveRule(parsedUrl, rulesConfig) {
       ...(d.removeSelectors || []),
       ...(extra.removeSelectors || []),
     ],
+    plugins: [...(d.plugins || []), ...(extra.plugins || [])],
     contentSelectors: extra.contentSelectors ?? d.contentSelectors,
   };
 }
@@ -47,7 +49,7 @@ function extractTitle($, rule) {
 }
 
 function extractMainHtml(html, rule) {
-  const $ = cheerio.load(html);
+  let $ = cheerio.load(html);
   const minLen = rule.minTextLength ?? 120;
 
   for (const sel of rule.removeSelectors || []) {
@@ -57,6 +59,8 @@ function extractMainHtml(html, rule) {
       /* ignore invalid selector */
     }
   }
+
+  $ = applyCheerioPlugins($, rule.plugins);
 
   for (const sel of rule.contentSelectors || []) {
     const node = $(sel).first();

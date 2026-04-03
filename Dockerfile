@@ -20,8 +20,12 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /
 
+RUN npm install -g nodemon@3.1.9
+
 COPY package.json ./
-RUN npm install --omit=dev --no-audit --no-fund
+# Omit devDependencies (large); install nodemon separately for docker-compose hot reload.
+RUN npm install --omit=dev --no-audit --no-fund \
+ && npm install nodemon@3.1.9 --no-audit --no-fund
 
 # Compose mounts ./app → /app; node_modules stay in the image at / and resolve above /app.
 

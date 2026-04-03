@@ -27,7 +27,7 @@ echo
 
 echo "== GET /api/parse (example.com) =="
 curl -sS -f -G "${BASE_URL}/api/parse" \
-  --data-urlencode "url=https://example.com" \
+  --data-urlencode "url=https://blog.pulipuli.info/2025/11/talk-deeply-felt-skypes-retirement.html" \
   | head -c 2000
 echo
 

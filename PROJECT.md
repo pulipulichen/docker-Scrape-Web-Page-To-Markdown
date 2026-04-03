@@ -56,7 +56,7 @@ flowchart LR
 4. `scrape.js` opens a new Puppeteer page, navigates (using `waitUntil`, `timeout`, etc. from the rule), optionally `waitForSelector`.  
 5. `extract.js` removes nodes matching `removeSelectors`, then walks `contentSelectors` **in order** and picks the first block whose text length is ≥ `minTextLength`; otherwise falls back to `body`. Title comes from `titleSelector`, or Open Graph, or `<title>`.  
 6. Turndown converts the chosen HTML fragment to Markdown (`content`).  
-7. Respond with JSON: `url`, `title`, `content`.
+7. Respond with JSON: `content` (Markdown string).
 
 ## Rule files (`app/rules/`)
 

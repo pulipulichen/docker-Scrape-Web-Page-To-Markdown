@@ -2,10 +2,12 @@ services:
   app:
     build: .
     tty: true
+    working_dir: /app
     volumes:
       - ./app:/app/
     environment:
       - PORT=3000
     ports:
       - "3000:3000"
-    command: ["node", "/app/index.js"]
+    # Hot reload when ./app changes (nodemon installed in image; see Dockerfile).
+    command: ["nodemon", "--ext", "js,json", "index.js"]
