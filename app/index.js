@@ -185,7 +185,11 @@ app.post('/parser', async (req, res) => {
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
     console.error(msg);
-    res.status(502).json({ error: 'fetch failed', detail: msg });
+    res.status(502).json({ 
+      error: 'fetch failed', 
+      detail: msg,
+      url: url
+     });
   }
 });
 
