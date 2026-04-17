@@ -28,8 +28,8 @@ curl -sS -f "${BASE_URL}/health" | head -c 500
 echo
 
 echo "== GET ${PARSER_PATH} (example.com) =="
-curl -sS -f -G "${PARSER_URL}" \
-  --data-urlencode "url=https://example.com" \
+curl -sS -G "${PARSER_URL}" \
+  --data-urlencode "url=https://www.storm.mg/lifestyle/11106544" \
   | head -c 2000
 echo
 

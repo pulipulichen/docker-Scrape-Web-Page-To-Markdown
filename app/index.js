@@ -174,12 +174,14 @@ app.post('/parser', async (req, res) => {
   ];
   try {
     // const result = await enqueue(() => parsePage(url, excludePlugins));
+    console.log('parsePage', url);
     const result = await parsePage(url, excludePlugins, fetchOverrides);
     if (!result.ok) {
       res.status(result.status).json(result.body);
       return;
     }
     res.json(result.body);
+    console.log('result preview', JSON.stringify(result.body).slice(0, 200));
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
     console.error(msg);
