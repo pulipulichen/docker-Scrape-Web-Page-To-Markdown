@@ -32,7 +32,7 @@ async function parsePageViaMarkdownNew(url, fetchOverrides) {
     let titleNeedle = '\n\n# '
     const htmlTitleIndex = text.indexOf(titleNeedle);
     if (htmlTitleIndex !== -1) {
-      text = text.slice(htmlTitleIndex + titleNeedle.length).trim();
+      text = text.slice(htmlTitleIndex + titleNeedle.length - 2).trim();
     }
 
     // 如果 text 最後有 \n\n```json\n{\n ，則把這後面的內容都移除
