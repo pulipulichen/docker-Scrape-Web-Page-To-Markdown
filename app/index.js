@@ -1,12 +1,10 @@
 const express = require('express');
-const rulesConfig = require('./rules');
 const { createSerialQueue } = require('./queue');
-const { resolveRule, extractMainHtml, htmlToMarkdown } = require('./extract');
-const { fetchRenderedHtml } = require('./scrape');
+const { parsePage: parsePageWithPuppet } = require('./puppet');
+const { parsePageViaMarkdownNew } = require('./markdownNew');
 
 const PORT = Number(process.env.PORT || 3000);
 const enqueue = createSerialQueue(0);
-const MIN_MARKDOWN_CHARS = 10;
 const MIN_TIMEOUT_MS = 1000;
 const MAX_TIMEOUT_MS = 120000;
 
@@ -86,38 +84,33 @@ function timeoutMsFromParserRequest(query, body) {
   return parseTimeoutMs(raw);
 }
 
-async function parsePage(url, excludePlugins, fetchOverrides) {
-  let rule;
-  try {
-    rule = resolveRule(url, rulesConfig, { excludePlugins });
-  } catch (e) {
-    const msg = e && e.message ? e.message : String(e);
+const VALID_MODES = new Set(['markdown.new', 'puppet']);
+
+/** Body wins over query on POST; omitted defaults to markdown.new. */
+function modeFromParserRequest(query, body) {
+  let raw;
+  if (body && body.mode != null && body.mode !== '') {
+    raw = body.mode;
+  } else if (query && query.mode != null && query.mode !== '') {
+    raw = query.mode;
+  } else {
+    raw = 'markdown.new';
+  }
+  const s = String(raw).trim();
+  if (!VALID_MODES.has(s)) {
     return {
       ok: false,
-      status: 400,
-      body: { error: 'invalid request', detail: msg },
+      error: 'invalid mode (use markdown.new or puppet)',
     };
   }
-  const html = await fetchRenderedHtml(url.href, rule, fetchOverrides);
-  const { htmlFragment } = extractMainHtml(html, rule);
-  const markdown = htmlToMarkdown(htmlFragment).trim();
-  if (markdown.length < MIN_MARKDOWN_CHARS) {
-    return {
-      ok: false,
-      status: 422,
-      body: {
-        error: 'extracted content too short',
-        detail: `Markdown length is ${markdown.length}; minimum is ${MIN_MARKDOWN_CHARS}.`,
-      },
-    };
+  return { ok: true, value: s };
+}
+
+async function runParser(mode, url, excludePlugins, fetchOverrides) {
+  if (mode === 'puppet') {
+    return parsePageWithPuppet(url, excludePlugins, fetchOverrides);
   }
-  return {
-    ok: true,
-    body: {
-      url: url.href,
-      content: markdown,
-    },
-  };
+  return parsePageViaMarkdownNew(url, fetchOverrides);
 }
 
 app.get('/health', (_req, res) => {
@@ -138,10 +131,20 @@ app.get('/parser', async (req, res) => {
   }
   const fetchOverrides =
     tm.value != null ? { navigationTimeoutMs: tm.value } : {};
+  const md = modeFromParserRequest(req.query, undefined);
+  if (!md.ok) {
+    res.status(400).json({ error: md.error });
+    return;
+  }
   const excludePlugins = excludePluginsFromQuery(req.query);
   try {
-    // const result = await enqueue(() => parsePage(url, excludePlugins));
-    const result = await parsePage(url, excludePlugins, fetchOverrides);
+    // const result = await enqueue(() => runParser(md.value, url, excludePlugins, fetchOverrides));
+    const result = await runParser(
+      md.value,
+      url,
+      excludePlugins,
+      fetchOverrides
+    );
     if (!result.ok) {
       res.status(result.status).json(result.body);
       return;
@@ -149,10 +152,10 @@ app.get('/parser', async (req, res) => {
     res.json(result.body);
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
-    res.status(502).json({ 
-      error: 'fetch failed', 
+    res.status(502).json({
+      error: 'fetch failed',
       detail: msg,
-      url: url
+      url: url.href,
     });
   }
 });
@@ -172,14 +175,24 @@ app.post('/parser', async (req, res) => {
   }
   const fetchOverrides =
     tm.value != null ? { navigationTimeoutMs: tm.value } : {};
+  const md = modeFromParserRequest(req.query, req.body);
+  if (!md.ok) {
+    res.status(400).json({ error: md.error });
+    return;
+  }
   const excludePlugins = [
     ...excludePluginsFromBody(req.body),
     ...excludePluginsFromQuery(req.query),
   ];
   try {
-    // const result = await enqueue(() => parsePage(url, excludePlugins));
-    console.log('parsePage', url);
-    const result = await parsePage(url, excludePlugins, fetchOverrides);
+    // const result = await enqueue(() => runParser(md.value, url, excludePlugins, fetchOverrides));
+    console.log('runParser', md.value, url.href);
+    const result = await runParser(
+      md.value,
+      url,
+      excludePlugins,
+      fetchOverrides
+    );
     if (!result.ok) {
       res.status(result.status).json(result.body);
       return;
@@ -189,11 +202,11 @@ app.post('/parser', async (req, res) => {
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
     console.error(msg);
-    res.status(502).json({ 
-      error: 'fetch failed', 
+    res.status(502).json({
+      error: 'fetch failed',
       detail: msg,
-      url: url
-     });
+      url: url.href,
+    });
   }
 });
 
