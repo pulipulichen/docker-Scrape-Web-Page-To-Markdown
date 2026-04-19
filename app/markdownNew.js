@@ -1,3 +1,5 @@
+const { AbortController } = require('node:abort_controller');
+
 const MIN_MARKDOWN_CHARS = 10;
 
 /**
