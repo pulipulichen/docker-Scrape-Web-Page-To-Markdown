@@ -4,6 +4,10 @@ A Dockerized web scraping service: it loads and renders pages with Puppeteer, ex
 
 For architecture and module roles, see [PROJECT.md](PROJECT.md).
 
+## Runtime (Node.js)
+
+The service image is based on a stack that runs **Node.js 14.21.3**. Code and dependencies are kept compatible with that version (for example, outbound HTTP to markdown.new uses **`node-fetch` v2** and **`abort-controller`** instead of Node 18+ globals such as `fetch` / `AbortController`).
+
 ## Prerequisites
 
 - Docker installed, with **`sudo docker`** and **`sudo docker compose`** as the normal way to run commands (the shell scripts in this repo assume that).

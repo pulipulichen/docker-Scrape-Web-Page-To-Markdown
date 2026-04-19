@@ -26,8 +26,10 @@
   },
   "license": "MIT",
   "dependencies": {
+    "abort-controller": "3.0.0",
     "cheerio": "0.22.0",
     "express": "4.21.2",
+    "node-fetch": "2.7.0",
     "puppeteer": "19.3.0",
     "turndown": "7.2.0"
   },

@@ -1,4 +1,5 @@
-const { AbortController } = require('node:abort_controller');
+const fetch = require('node-fetch');
+const AbortController = require('abort-controller');
 
 const MIN_MARKDOWN_CHARS = 10;
 
