@@ -20,7 +20,27 @@ async function parsePageViaMarkdownNew(url, fetchOverrides) {
         Accept: 'text/markdown',
       },
     });
-    const text = (await res.text()).trim();
+    let text = (await res.text()).trim();
+
+    // 如果 text 開頭有 \n---\n\n <!doctype html> ，取得之後的內容
+    let headerNeedle = '\n---\n\n <!doctype html>'
+    const htmlStartIndex = text.indexOf(headerNeedle);
+    if (htmlStartIndex !== -1) {
+      text = text.slice(htmlStartIndex + headerNeedle.length).trim();
+    }
+
+    let titleNeedle = '\n\n# '
+    const htmlTitleIndex = text.indexOf(titleNeedle);
+    if (htmlTitleIndex !== -1) {
+      text = text.slice(htmlTitleIndex + titleNeedle.length).trim();
+    }
+
+    // 如果 text 最後有 \n\n```json\n{\n ，則把這後面的內容都移除
+    const jsonEndIndex = text.lastIndexOf('\n\n```json\n{\n');
+    if (jsonEndIndex !== -1) {
+      text = text.slice(0, jsonEndIndex).trim();
+    }
+
     if (!res.ok) {
       return {
         ok: false,
